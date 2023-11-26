@@ -1,7 +1,7 @@
 #include <gl/glut.h>
 #include <gl/gl.h>
 #include <gl/glu.h>
-static int Dance = 0, a = 20, b = 20, c = 0, d = 0, e=0, f=0, g=0, h=0;
+static int Dance = 0, a = 20, b = 20, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0;
 
 void Draw_Body();
 void Draw_Neck();
@@ -22,13 +22,14 @@ void Draw_R_U_Ball();
 void Draw_R_UpperLeg();
 void Draw_R_LowerLeg();
 void Draw_R_Foot();
-
-//a= ¿ÞÆÈ, b=¿À¸¥ÆÈ c=¿Þ ÆÈ¸ñ d=¿À¸¥ ÆÈ¸ñ e=¿Þ Çã¹÷Áö f= ¿À¸¥ Çã¹÷Áö g=¿Þ ¹ß¸ñ h=¿À¸¥ ¹ß¸ñ
+void drawFilledCylinder(GLfloat radius, GLfloat height, GLint slices, GLint stacks);
+//a= ì™¼íŒ”, b=ì˜¤ë¥¸íŒ” c=ì™¼ íŒ”ëª© d=ì˜¤ë¥¸ íŒ”ëª© e=ì™¼ í—ˆë²…ì§€ f= ì˜¤ë¥¸ í—ˆë²…ì§€ g=ì™¼ ë°œëª© h=ì˜¤ë¥¸ ë°œëª©
 
 void MyDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	gluLookAt(0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	glRotatef((GLfloat)Dance, 0.0, 1.0, 0.0);
 	glTranslatef(0.0, 0.31, 0.0);
 	Draw_Body();
@@ -40,120 +41,137 @@ void MyDisplay() {
 	glTranslatef(0.0, -0.19, 0.0);
 	glTranslatef(0.0, -0.05, 0.0);
 	Draw_Head();
-	glPopMatrix(); //¸ñ
-	glPopMatrix(); //¸öÅë
+	glPopMatrix(); //ëª©
+	glPopMatrix(); //ëª¸í†µ
 	glPushMatrix();
 	glTranslatef(-0.1, 0.0, 0.0);
 	glTranslatef(-0.20, 0.21, 0.0);
-	Draw_L_Ball();  //¿ÞÂÊ ÆÈ ºÎºÐ ½ÃÀÛ
+	Draw_L_Ball();  //ì™¼ìª½ íŒ” ë¶€ë¶„ ì‹œìž‘
 	glPushMatrix();
 	glRotatef(a, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, 0.22, 0.0);
 	glTranslatef(0.0, 0.03, 0.0);
-	Draw_L_UpperArm(); //¿ÞÂÊ ¾î±úÂÊ
+	Draw_L_UpperArm(); //ì™¼ìª½ ì–´ê¹¨ìª½
 	glPushMatrix();
 	glTranslatef(0.0, 0.15, 0.0);
-	Draw_L_Ball();  //¿ÞÂÊ ÆÈ ºÎºÐ ½ÃÀÛ
+	Draw_L_Ball();  //ì™¼ìª½ íŒ” ë¶€ë¶„ ì‹œìž‘
 	glPushMatrix();
 	glRotatef(c, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, -0.25, 0.0);
 	glTranslatef(0.0, -0.05, 0.0);
-	Draw_L_LowerArm();   //¿ÞÂÊ ÆÈ¸ñ
+	Draw_L_LowerArm();   //ì™¼ìª½ íŒ”ëª©
 	glPushMatrix();
 	glTranslatef(0.0, -0.05, 0.0);
 	glTranslatef(0.0, -0.2, 0.0);
-	Draw_L_Hand();   //¿ÞÂÊ ¼Õ
-	glPopMatrix(); //¿ÞÂÊ ÆÈ¸ñ
-	glPopMatrix();  //¿ÞÂÊ ÆÈ¸ñ°üÀý
-	glPopMatrix();  //¿ÞÂÊ ¾î±ú
-	glPopMatrix();  //¿ÞÂÊ ¾î±ú°üÀý
-	glPopMatrix(); //¸öÅë
+	Draw_L_Hand();   //ì™¼ìª½ ì†
+	glPopMatrix(); //ì™¼ìª½ íŒ”ëª©
+	glPopMatrix();  //ì™¼ìª½ íŒ”ëª©ê´€ì ˆ
+	glPopMatrix();  //ì™¼ìª½ ì–´ê¹¨
+	glPopMatrix();  //ì™¼ìª½ ì–´ê¹¨ê´€ì ˆ
+	glPopMatrix(); //ëª¸í†µ
 	glPushMatrix();
 	glTranslatef(0.1, 0.0, 0.0);
 	glTranslatef(0.20, 0.21, 0.0);
-	Draw_R_Ball();  //¿À¸¥ÂÊ ÆÈ ºÎºÐ ½ÃÀÛ
+	Draw_R_Ball();  //ì˜¤ë¥¸ìª½ íŒ” ë¶€ë¶„ ì‹œìž‘
 	glPushMatrix();
 	glRotatef(-b, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, 0.22, 0.0);
 	glTranslatef(0.0, 0.03, 0.0);
-	Draw_R_UpperArm(); //¿À¸¥ÂÊ ¾î±úÂÊ
+	Draw_R_UpperArm(); //ì˜¤ë¥¸ìª½ ì–´ê¹¨ìª½
 	glPushMatrix();
 	glTranslatef(0.0, 0.15, 0.0);
-	Draw_R_Ball();  //¿À¸¥ÂÊ ÆÈ ºÎºÐ ½ÃÀÛ
+	Draw_R_Ball();  //ì˜¤ë¥¸ìª½ íŒ” ë¶€ë¶„ ì‹œìž‘
 	glPushMatrix();
 	glRotatef(d, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, -0.25, 0.0);
 	glTranslatef(0.0, -0.05, 0.0);
-	Draw_R_LowerArm();   //¿À¸¥ÂÊ ÆÈ¸ñ
+	Draw_R_LowerArm();   //ì˜¤ë¥¸ìª½ íŒ”ëª©
 	glPushMatrix();
 	glTranslatef(0.0, -0.05, 0.0);
 	glTranslatef(0.0, -0.2, 0.0);
-	Draw_R_Hand();   //¿À¸¥ÂÊ ¼Õ
-	glPopMatrix(); //¿À¸¥ÂÊ ÆÈ¸ñ
-	glPopMatrix();  //¿À¸¥ÂÊ ÆÈ¸ñ°üÀý
-	glPopMatrix();  //¿À¸¥ÂÊ ¾î±ú
-	glPopMatrix();  //¿À¸¥ÂÊ ¾î±ú°üÀý
-	glPopMatrix(); //¸öÅë
+	Draw_R_Hand();   //ì˜¤ë¥¸ìª½ ì†
+	glPopMatrix(); //ì˜¤ë¥¸ìª½ íŒ”ëª©
+	glPopMatrix();  //ì˜¤ë¥¸ìª½ íŒ”ëª©ê´€ì ˆ
+	glPopMatrix();  //ì˜¤ë¥¸ìª½ ì–´ê¹¨
+	glPopMatrix();  //ì˜¤ë¥¸ìª½ ì–´ê¹¨ê´€ì ˆ
+	glPopMatrix(); //ëª¸í†µ
 	glPushMatrix();
 	glTranslatef(-0.1, -0.0, 0.0);
 	glTranslatef(-0.21, -0.2, 0.0);
-	Draw_L_U_Ball();  //¿ÞÂÊ ´Ù¸® ½ÃÀÛ °üÀý
+	Draw_L_U_Ball();  //ì™¼ìª½ ë‹¤ë¦¬ ì‹œìž‘ ê´€ì ˆ
 	glPushMatrix();
 	glRotatef(e, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, 0.5, 0.0);
 	glTranslatef(0.0, 0.03, 0.0);
-	Draw_L_UpperLeg();  //¿ÞÂÊ Çã¹÷Áö
+	Draw_L_UpperLeg();  //ì™¼ìª½ í—ˆë²…ì§€
 	glPushMatrix();
 	glTranslatef(0.0, 0.02, 0.0);
 	glTranslatef(0.0, 0.18, 0.0);
-	Draw_L_U_Ball();  //¿ÞÂÊ ´Ù¸® ½ÃÀÛ °üÀý
+	Draw_L_U_Ball();  //ì™¼ìª½ ë‹¤ë¦¬ ì‹œìž‘ ê´€ì ˆ
 	glPushMatrix();
 	glRotatef(g, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, -0.22, 0.0);
 	glTranslatef(0.0, -0.02, 0.0);
-	Draw_L_LowerLeg();  //¿ÞÂÊ ´Ù¸®
+	Draw_L_LowerLeg();  //ì™¼ìª½ ë‹¤ë¦¬
 	glPushMatrix();
 	glTranslatef(0.0, -0.02, 0.0);
 	glTranslatef(0.0, -0.13, 0.0);
-	Draw_L_Foot();  //¿ÞÂÊ ¹ß
-	glPopMatrix(); //¿ÞÂÊ ´Ù¸®
-	glPopMatrix();  //´Ù¸® °üÀý
-	glPopMatrix();  //¿ÞÂÊ Çã¹÷Áö
-	glPopMatrix(); //¿ÞÂÊ ´Ù¸®½ÃÀÛ°üÀý
-	glPopMatrix(); //¸öÅë
+	Draw_L_Foot();  //ì™¼ìª½ ë°œ
+	glPopMatrix(); //ì™¼ìª½ ë‹¤ë¦¬
+	glPopMatrix();  //ë‹¤ë¦¬ ê´€ì ˆ
+	glPopMatrix();  //ì™¼ìª½ í—ˆë²…ì§€
+	glPopMatrix(); //ì™¼ìª½ ë‹¤ë¦¬ì‹œìž‘ê´€ì ˆ
+	glPopMatrix(); //ëª¸í†µ
 	glTranslatef(0.1, -0.0, 0.0);
 	glTranslatef(0.21, -0.2, 0.0);
-	Draw_R_U_Ball();  //¿À¸¥ÂÊ ´Ù¸® ½ÃÀÛ °üÀý
+	Draw_R_U_Ball();  //ì˜¤ë¥¸ìª½ ë‹¤ë¦¬ ì‹œìž‘ ê´€ì ˆ
 	glPushMatrix();
 	glRotatef(f, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, 0.5, 0.0);
 	glTranslatef(0.0, 0.03, 0.0);
-	Draw_R_UpperLeg();  //¿À¸¥ÂÊ Çã¹÷Áö
+	Draw_R_UpperLeg();  //ì˜¤ë¥¸ìª½ í—ˆë²…ì§€
 	glPushMatrix();
 	glTranslatef(0.0, 0.02, 0.0);
 	glTranslatef(0.0, 0.18, 0.0);
-	Draw_R_U_Ball();  //¿À¸¥ÂÊ ´Ù¸® ½ÃÀÛ °üÀý
+	Draw_R_U_Ball();  //ì˜¤ë¥¸ìª½ ë‹¤ë¦¬ ì‹œìž‘ ê´€ì ˆ
 	glPushMatrix();
 	glRotatef(h, 0.0, 0.0, 1.0);
 	glTranslatef(0.0, -0.22, 0.0);
 	glTranslatef(0.0, -0.02, 0.0);
-	Draw_R_LowerLeg();  //¿À¸¥ÂÊ ´Ù¸®
+	Draw_R_LowerLeg();  //ì˜¤ë¥¸ìª½ ë‹¤ë¦¬
 	glPushMatrix();
 	glTranslatef(0.0, -0.02, 0.0);
 	glTranslatef(0.0, -0.13, 0.0);
-	Draw_R_Foot();  //¿À¸¥ÂÊ ¹ß
-	glPopMatrix(); //¿À¸¥ÂÊ ´Ù¸®
-	glPopMatrix();  //¿À¸¥ÂÊ ´Ù¸® °üÀý
-	glPopMatrix();  //¿À¸¥ÂÊ Çã¹÷Áö
-	glPopMatrix(); //¿À¸¥ÂÊ ´Ù¸® ½ÃÀÛ °üÀý
-	glPopMatrix(); //¸öÅë
+	Draw_R_Foot();  //ì˜¤ë¥¸ìª½ ë°œ
+	glPopMatrix(); //ì˜¤ë¥¸ìª½ ë‹¤ë¦¬
+	glPopMatrix();  //ì˜¤ë¥¸ìª½ ë‹¤ë¦¬ ê´€ì ˆ
+	glPopMatrix();  //ì˜¤ë¥¸ìª½ í—ˆë²…ì§€
+	glPopMatrix(); //ì˜¤ë¥¸ìª½ ë‹¤ë¦¬ ì‹œìž‘ ê´€ì ˆ
+	glPopMatrix(); //ëª¸í†µ
+
+	glColor3f(1.0, 1.0, 1.0);  // í°ìƒ‰
+	drawFilledCylinder(2.0, 0.2, 20, 10);
+
+	// ë‘ ë²ˆì§¸ ì›ê¸°ë‘¥
+	glColor3f(1.0, 1.0, 1.0);  // í°ìƒ‰
+	glTranslatef(0.0, 0.0, 0.2);
+	drawFilledCylinder(2.5, 0.4, 20, 10);
+	glPopMatrix();
 
 	glutSwapBuffers();
 }
 
+void drawFilledCylinder(GLfloat radius, GLfloat height, GLint slices, GLint stacks) {
+	GLUquadricObj* quadric = gluNewQuadric();
+	gluQuadricDrawStyle(quadric, GLU_FILL);
+	gluCylinder(quadric, radius, radius, height, slices, stacks);
+	gluDeleteQuadric(quadric);
+}
+
+
 void MyKeyboard(unsigned char key, int x, int y) {
 	switch (key) {
-		//a= ¿ÞÆÈ, b=¿À¸¥ÆÈ c=¿Þ ÆÈ¸ñ d=¿À¸¥ ÆÈ¸ñ e=¿Þ Çã¹÷Áö f= ¿À¸¥ Çã¹÷Áö g=¿Þ ¹ß¸ñ h=¿À¸¥ ¹ß¸ñ
+		//a= ì™¼íŒ”, b=ì˜¤ë¥¸íŒ” c=ì™¼ íŒ”ëª© d=ì˜¤ë¥¸ íŒ”ëª© e=ì™¼ í—ˆë²…ì§€ f= ì˜¤ë¥¸ í—ˆë²…ì§€ g=ì™¼ ë°œëª© h=ì˜¤ë¥¸ ë°œëª©
 	case 'a':
 		a = 90;
 		b = 90;
@@ -178,13 +196,13 @@ void MyKeyboard(unsigned char key, int x, int y) {
 		Dance = 0;
 		glutPostRedisplay();
 		break;
-		// 'd' Å°¸¦ ´©¸£¸é Dance º¯¼ö¸¦ 10¾¿ Áõ°¡½ÃÅ°°í 360À¸·Î ³ª´« ³ª¸ÓÁö¸¦ ´ëÀÔÇÕ´Ï´Ù.
-		// ±×¸®°í È­¸éÀ» ´Ù½Ã ±×¸®µµ·Ï ÇÕ´Ï´Ù.
+		// 'd' í‚¤ë¥¼ ëˆ„ë¥´ë©´ Dance ë³€ìˆ˜ë¥¼ 10ì”© ì¦ê°€ì‹œí‚¤ê³  360ìœ¼ë¡œ ë‚˜ëˆˆ ë‚˜ë¨¸ì§€ë¥¼ ëŒ€ìž…í•©ë‹ˆë‹¤.
+		// ê·¸ë¦¬ê³  í™”ë©´ì„ ë‹¤ì‹œ ê·¸ë¦¬ë„ë¡ í•©ë‹ˆë‹¤.
 	case 'd':
 		Dance = (Dance + 10) % 360;
 		glutPostRedisplay();
 		break;
-		// 'g' Å°¸¦ ´©¸£¸é ¿ÞÂÊ ¾î±ú¿Í ¿ÞÂÊ ÆÈÀ» Æ¯Á¤ °¢µµ·Î ¼³Á¤ÇÏ°í È­¸éÀ» ´Ù½Ã ±×¸®µµ·Ï ÇÕ´Ï´Ù.
+		// 'g' í‚¤ë¥¼ ëˆ„ë¥´ë©´ ì™¼ìª½ ì–´ê¹¨ì™€ ì™¼ìª½ íŒ”ì„ íŠ¹ì • ê°ë„ë¡œ ì„¤ì •í•˜ê³  í™”ë©´ì„ ë‹¤ì‹œ ê·¸ë¦¬ë„ë¡ í•©ë‹ˆë‹¤.
 	case 'g':
 		a = 90;
 		b = 90;
@@ -195,9 +213,9 @@ void MyKeyboard(unsigned char key, int x, int y) {
 		b = 180;
 		glutPostRedisplay();
 		break;
-		
-	
-		// 'q' Å°¸¦ ´©¸£¸é °¢ º¯¼öµéÀ» ÃÊ±â°ªÀ¸·Î ¼³Á¤ÇÏ°í Dance º¯¼öµµ 0À¸·Î ÃÊ±âÈ­ÇÑ ÈÄ È­¸éÀ» ´Ù½Ã ±×¸®µµ·Ï ÇÕ´Ï´Ù.
+
+
+		// 'q' í‚¤ë¥¼ ëˆ„ë¥´ë©´ ê° ë³€ìˆ˜ë“¤ì„ ì´ˆê¸°ê°’ìœ¼ë¡œ ì„¤ì •í•˜ê³  Dance ë³€ìˆ˜ë„ 0ìœ¼ë¡œ ì´ˆê¸°í™”í•œ í›„ í™”ë©´ì„ ë‹¤ì‹œ ê·¸ë¦¬ë„ë¡ í•©ë‹ˆë‹¤.
 	case 'q':
 		a = 20;
 		b = 20;
@@ -210,7 +228,7 @@ void MyKeyboard(unsigned char key, int x, int y) {
 		Dance = 0;
 		glutPostRedisplay();
 		break;
-	
+
 	default:
 		break;
 	}
@@ -218,64 +236,64 @@ void MyKeyboard(unsigned char key, int x, int y) {
 
 void Draw_Body()
 {
-	// ¸öÅëÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.2, YÃàÀ¸·Î 1.0, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ëª¸í†µì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.2, Yì¶•ìœ¼ë¡œ 1.0, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.2, 0.5, 0.3);
-	// ¸öÅëÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ëª¸í†µì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
-	// ¸öÅëÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.3ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ëª¸í†µì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.3ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.3, 100, 100);
 }
 
 void Draw_Neck()
 {
-	// ¸ñÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 2.0, YÃàÀ¸·Î -0.5, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ëª©ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 2.0, Yì¶•ìœ¼ë¡œ -0.5, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(2.0, -0.5, 1.0);
 	glColor3f(1.0, 0.87, 0.68);
-	// ¸ñÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-   // ¹ÝÁö¸§ÀÌ 0.04ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ëª©ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+   // ë°˜ì§€ë¦„ì´ 0.04ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.04, 80, 80);
 }
 
 void Draw_L_Ball()
 {
-	// ¿ÞÂÊ ¼Õ¸ñ ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 2.0, YÃàÀ¸·Î -0.5, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ ì†ëª© ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 2.0, Yì¶•ìœ¼ë¡œ -0.5, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(2.0, -0.5, 1.0);
-	// ¿ÞÂÊ ¼Õ¸ñ ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ ì†ëª© ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
-	// ¿ÞÂÊ ¼Õ¸ñ ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.04ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ ì†ëª© ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.04ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.04, 80, 80);
 }
 
 void Draw_Eyes() {
-	// Ã¹ ¹øÂ° ´«
-	glColor3f(0.0, 0.0, 0.0); // °ËÁ¤»öÀ¸·Î ¼³Á¤
+	// ì²« ë²ˆì§¸ ëˆˆ
+	glColor3f(0.0, 0.0, 0.0); // ê²€ì •ìƒ‰ìœ¼ë¡œ ì„¤ì •
 	glPushMatrix();
-	glTranslatef(-0.1, 0.1, 2.5); // ´«ÀÇ À§Ä¡ Á¶Àý
+	glTranslatef(-0.1, 0.1, 2.5); // ëˆˆì˜ ìœ„ì¹˜ ì¡°ì ˆ
 	glutSolidSphere(0.03, 20, 20);
 	glPopMatrix();
 
-	// µÎ ¹øÂ° ´«
+	// ë‘ ë²ˆì§¸ ëˆˆ
 	glPushMatrix();
-	glTranslatef(0.1, 0.1, 2.5); // ´«ÀÇ À§Ä¡ Á¶Àý
+	glTranslatef(0.1, 0.1, 2.5); // ëˆˆì˜ ìœ„ì¹˜ ì¡°ì ˆ
 	glutSolidSphere(0.03, 20, 20);
 	glPopMatrix();
 }
 
 void Draw_Head() {
-	glColor3f(1.0, 0.87, 0.68); // ¸Ó¸®ÀÇ ±âº» »ö»ó ¼³Á¤
-	glutWireSphere(0.25, 90, 90); // ¸Ó¸® ¸ð¾ç ¹× Å©±â ¼³Á¤
+	glColor3f(1.0, 0.87, 0.68); // ë¨¸ë¦¬ì˜ ê¸°ë³¸ ìƒ‰ìƒ ì„¤ì •
+	glutWireSphere(0.25, 90, 90); // ë¨¸ë¦¬ ëª¨ì–‘ ë° í¬ê¸° ì„¤ì •
 
-	// ´« ±×¸®±â
+	// ëˆˆ ê·¸ë¦¬ê¸°
 	glPushMatrix();
-	
-	Draw_Eyes(); // ¿À¸¥ÂÊ ´« ±×¸®±â
+
+	Draw_Eyes(); // ì˜¤ë¥¸ìª½ ëˆˆ ê·¸ë¦¬ê¸°
 	glPopMatrix();
 
 	glPushMatrix();
-	
-	Draw_Eyes(); // ¿ÞÂÊ ´« ±×¸®±â
+
+	Draw_Eyes(); // ì™¼ìª½ ëˆˆ ê·¸ë¦¬ê¸°
 	glPopMatrix();
 
 }
@@ -283,190 +301,190 @@ void Draw_Head() {
 
 void Draw_L_UpperArm()
 {
-	// ¿ÞÂÊ »ó´Ü ÆÈ ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.3, YÃàÀ¸·Î 1.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ ìƒë‹¨ íŒ” ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.3, Yì¶•ìœ¼ë¡œ 1.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.3, 1.5, 0.3);
-	// ¿ÞÂÊ »ó´Ü ÆÈ ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ ìƒë‹¨ íŒ” ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
-	// ¿ÞÂÊ »ó´Ü ÆÈ ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.15ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ ìƒë‹¨ íŒ” ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.15ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.15, 80, 80);
 }
 
 void Draw_L_LowerArm()
 {
-	// ¿ÞÂÊ ÇÏ´Ü ÆÈ ºÎºÐ(ÆÈ¸ñ)ÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.2, YÃàÀ¸·Î 1.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ í•˜ë‹¨ íŒ” ë¶€ë¶„(íŒ”ëª©)ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.2, Yì¶•ìœ¼ë¡œ 1.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.2, 1.5, 0.3);
-	// ¿ÞÂÊ ÇÏ´Ü ÆÈ ºÎºÐ(ÆÈ¸ñ)ÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ í•˜ë‹¨ íŒ” ë¶€ë¶„(íŒ”ëª©)ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
-	// ¿ÞÂÊ ÇÏ´Ü ÆÈ ºÎºÐ(ÆÈ¸ñ)À» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.2ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ í•˜ë‹¨ íŒ” ë¶€ë¶„(íŒ”ëª©)ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.2ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.2, 80, 80);
 }
 
 void Draw_L_Hand()
 {
-	// ¿ÞÂÊ ¼ÕÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 1.0, YÃàÀ¸·Î -0.5, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ ì†ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 1.0, Yì¶•ìœ¼ë¡œ -0.5, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(4.0, -0.5, 4.0);
-	// ¿ÞÂÊ ¼ÕÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ ì†ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(1.0, 0.87, 0.68);
-	// ¿ÞÂÊ ¼ÕÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.1ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ ì†ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.1ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.1, 80, 80);
 }
 
 void Draw_R_Ball()
 {
-	// ¿À¸¥ÂÊ ¼Õ¸ñ ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 2.0, YÃàÀ¸·Î -0.5, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì†ëª© ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 2.0, Yì¶•ìœ¼ë¡œ -0.5, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(2.0, -0.5, 1.0);
 	glColor3f(0.0, 0.0, 1.0);
-	// ¿À¸¥ÂÊ ¼Õ¸ñ ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-// ¹ÝÁö¸§ÀÌ 0.04ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì†ëª© ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+// ë°˜ì§€ë¦„ì´ 0.04ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.04, 80, 80);
 }
 
 void Draw_R_UpperArm()
 {
-	// ¿À¸¥ÂÊ »ó´Ü ÆÈ ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.3, YÃàÀ¸·Î 1.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ìƒë‹¨ íŒ” ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.3, Yì¶•ìœ¼ë¡œ 1.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.3, 1.5, 0.3);
 	glColor3f(0.0, 0.0, 1.0);
-	// ¿À¸¥ÂÊ »ó´Ü ÆÈ ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.15ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ìƒë‹¨ íŒ” ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.15ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.15, 80, 80);
 }
 
 void Draw_R_LowerArm()
 {
-	// ¿À¸¥ÂÊ ÇÏ´Ü ÆÈ ºÎºÐ(ÆÈ¸ñ)ÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.2, YÃàÀ¸·Î 1.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ í•˜ë‹¨ íŒ” ë¶€ë¶„(íŒ”ëª©)ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.2, Yì¶•ìœ¼ë¡œ 1.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.2, 1.5, 0.3);
 	glColor3f(0.0, 0.0, 1.0);
-	// ¿À¸¥ÂÊ ÇÏ´Ü ÆÈ ºÎºÐ(ÆÈ¸ñ)À» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.2ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ í•˜ë‹¨ íŒ” ë¶€ë¶„(íŒ”ëª©)ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.2ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.2, 80, 80);
 }
 
 void Draw_R_Hand() {
-	// ¿À¸¥ÂÊ ¼ÕÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 1.0, YÃàÀ¸·Î -0.5, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì†ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 1.0, Yì¶•ìœ¼ë¡œ -0.5, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(4.0, -0.5, 4.0);
 
-	// ¿À¸¥ÂÊ ¼ÕÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì†ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(1.0, 0.87, 0.68);
 
-	// ¿À¸¥ÂÊ ¼ÕÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.1ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì†ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.1ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.1, 80, 80);
 }
 
 void Draw_L_U_Ball() {
-	// ¿ÞÂÊ »ó´Ü ´Ù¸®ÀÇ ½ÃÀÛ ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 2.0, YÃàÀ¸·Î -0.5, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ ìƒë‹¨ ë‹¤ë¦¬ì˜ ì‹œìž‘ ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 2.0, Yì¶•ìœ¼ë¡œ -0.5, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(2.0, -0.5, 1.0);
 
-	// ¿ÞÂÊ »ó´Ü ´Ù¸®ÀÇ ½ÃÀÛ ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ ìƒë‹¨ ë‹¤ë¦¬ì˜ ì‹œìž‘ ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
 
-	// ¿ÞÂÊ »ó´Ü ´Ù¸®ÀÇ ½ÃÀÛ ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.04ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ ìƒë‹¨ ë‹¤ë¦¬ì˜ ì‹œìž‘ ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.04ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.04, 80, 80);
 }
 
 void Draw_L_UpperLeg() {
-	// ¿ÞÂÊ Çã¹÷Áö ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.25, YÃàÀ¸·Î 2.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ í—ˆë²…ì§€ ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.25, Yì¶•ìœ¼ë¡œ 2.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.25, 2.0, 0.3);
 
-	// ¿ÞÂÊ Çã¹÷Áö ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ í—ˆë²…ì§€ ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
 
-	// ¿ÞÂÊ Çã¹÷Áö ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.2ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ í—ˆë²…ì§€ ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.2ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.2, 80, 80);
 }
 
 void Draw_L_LowerLeg() {
-	// ¿ÞÂÊ ¾Æ·¡ÂÊ ´Ù¸® ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.5, YÃàÀ¸·Î 1.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ ì•„ëž˜ìª½ ë‹¤ë¦¬ ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.5, Yì¶•ìœ¼ë¡œ 1.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.5, 1.5, 0.3);
 
-	// ¿ÞÂÊ ¾Æ·¡ÂÊ ´Ù¸® ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ ì•„ëž˜ìª½ ë‹¤ë¦¬ ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
 
-	// ¿ÞÂÊ ¾Æ·¡ÂÊ ´Ù¸® ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.15ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ ì•„ëž˜ìª½ ë‹¤ë¦¬ ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.15ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.15, 80, 80);
 }
 
 void Draw_L_Foot() {
-	// ¿ÞÂÊ ¹ß ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 3.0, YÃàÀ¸·Î 0.1, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì™¼ìª½ ë°œ ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 3.0, Yì¶•ìœ¼ë¡œ 0.1, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(3.0, 0.4, 1.0);
 
-	// ¿ÞÂÊ ¹ß ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì™¼ìª½ ë°œ ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(1.0, 0.87, 0.68);
 
-	// ¿ÞÂÊ ¹ß ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.1ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì™¼ìª½ ë°œ ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.1ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.1, 80, 80);
 }
 
 
 void Draw_R_U_Ball() {
-	// ¿À¸¥ÂÊ ´Ù¸®ÀÇ ½ÃÀÛ ºÎºÐ °üÀý Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 2.0, YÃàÀ¸·Î -0.5, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ë‹¤ë¦¬ì˜ ì‹œìž‘ ë¶€ë¶„ ê´€ì ˆ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 2.0, Yì¶•ìœ¼ë¡œ -0.5, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(2.0, -0.5, 1.0);
 
-	// ¿À¸¥ÂÊ ´Ù¸®ÀÇ ½ÃÀÛ ºÎºÐ °üÀýÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ë‹¤ë¦¬ì˜ ì‹œìž‘ ë¶€ë¶„ ê´€ì ˆì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
 
-	// ¿À¸¥ÂÊ ´Ù¸®ÀÇ ½ÃÀÛ ºÎºÐ °üÀýÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.04ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ë‹¤ë¦¬ì˜ ì‹œìž‘ ë¶€ë¶„ ê´€ì ˆì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.04ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.04, 80, 80);
 }
 
 
 void Draw_R_UpperLeg() {
-	// ¿À¸¥ÂÊ Çã¹÷Áö ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.25, YÃàÀ¸·Î 2.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ í—ˆë²…ì§€ ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.25, Yì¶•ìœ¼ë¡œ 2.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.25, 2.0, 0.3);
 
-	// ¿À¸¥ÂÊ Çã¹÷Áö ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ í—ˆë²…ì§€ ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
 
-	// ¿À¸¥ÂÊ Çã¹÷Áö ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.2ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ í—ˆë²…ì§€ ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.2ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.2, 80, 80);
 }
 
 
 void Draw_R_LowerLeg() {
-	// ¿À¸¥ÂÊ Á¾¾Æ¸® ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 0.5, YÃàÀ¸·Î 1.5, ZÃàÀ¸·Î 0.3ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì¢…ì•„ë¦¬ ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 0.5, Yì¶•ìœ¼ë¡œ 1.5, Zì¶•ìœ¼ë¡œ 0.3ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(0.5, 1.5, 0.3);
 
-	// ¿À¸¥ÂÊ Á¾¾Æ¸® ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì¢…ì•„ë¦¬ ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(0.0, 0.0, 1.0);
 
-	// ¿À¸¥ÂÊ Á¾¾Æ¸® ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.15ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ì¢…ì•„ë¦¬ ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.15ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.15, 80, 80);
 }
 
 
 void Draw_R_Foot() {
-	// ¿À¸¥ÂÊ ¹ß ºÎºÐÀÇ Å©±â¸¦ Á¶ÀýÇÕ´Ï´Ù. XÃàÀ¸·Î 3.0, YÃàÀ¸·Î 0.1, ZÃàÀ¸·Î 1.0ÀÇ ºñÀ²·Î È®´ëÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ë°œ ë¶€ë¶„ì˜ í¬ê¸°ë¥¼ ì¡°ì ˆí•©ë‹ˆë‹¤. Xì¶•ìœ¼ë¡œ 3.0, Yì¶•ìœ¼ë¡œ 0.1, Zì¶•ìœ¼ë¡œ 1.0ì˜ ë¹„ìœ¨ë¡œ í™•ëŒ€í•©ë‹ˆë‹¤.
 	glScalef(3.0, 0.4, 1.0);
 
-	// ¿À¸¥ÂÊ ¹ß ºÎºÐÀÇ »ö»óÀ» ¼³Á¤ÇÕ´Ï´Ù. ÆÄ¶õ»öÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ë°œ ë¶€ë¶„ì˜ ìƒ‰ìƒì„ ì„¤ì •í•©ë‹ˆë‹¤. íŒŒëž€ìƒ‰ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
 	glColor3f(1.0, 0.87, 0.68);
 
-	// ¿À¸¥ÂÊ ¹ß ºÎºÐÀ» ¿ÍÀÌ¾îÇÁ·¹ÀÓ ±¸ ÇüÅÂ·Î ±×¸³´Ï´Ù.
-	// ¹ÝÁö¸§ÀÌ 0.1ÀÌ¸ç, °¡·Î ¹× ¼¼·Î¿¡ 20°³ÀÇ ½½¶óÀÌ½º ¹× ½ºÅÃÀ» °¡Áø ±¸¸¦ ±×¸³´Ï´Ù.
+	// ì˜¤ë¥¸ìª½ ë°œ ë¶€ë¶„ì„ ì™€ì´ì–´í”„ë ˆìž„ êµ¬ í˜•íƒœë¡œ ê·¸ë¦½ë‹ˆë‹¤.
+	// ë°˜ì§€ë¦„ì´ 0.1ì´ë©°, ê°€ë¡œ ë° ì„¸ë¡œì— 20ê°œì˜ ìŠ¬ë¼ì´ìŠ¤ ë° ìŠ¤íƒì„ ê°€ì§„ êµ¬ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
 	glutWireSphere(0.1, 80, 80);
 }
 
 
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(1280, 980);
 	glutInitWindowPosition(0, 0);
 	glutCreateWindow("human");
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+	gluPerspective(45.0, 1.0, 0.1, 100.0);
 	glutDisplayFunc(MyDisplay);
 	glutKeyboardFunc(MyKeyboard);
 	glutMainLoop();
