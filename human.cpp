@@ -36,23 +36,20 @@ void SetupLighting() {
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 
-	GLfloat material_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
-	GLfloat material_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-	GLfloat material_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat material_shininess[] = { 100.0 };
-
-	glMaterialfv(GL_FRONT, GL_AMBIENT, material_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, material_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, material_specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, material_shininess);
+	// 파란색 재질 설정
+	GLfloat blue_material_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, blue_material_diffuse);
 }
 
 void MyDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
+	
 	glLoadIdentity();
+	
 	gluLookAt(0.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0);
 	glRotatef((GLfloat)Dance, 0.0, 1.0, 0.0);
+	
 	glTranslatef(0.0, 0.31, 0.0);
 	SetupLighting();
 	Draw_Body();
@@ -178,20 +175,23 @@ void MyDisplay() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(0, 7, 0, 0, 5, 0, 0, 0, -1);
+	gluLookAt(0, 6, 0, 0, 3, 0, 0, 0, -2);
 	
 	// 첫 번째 원기둥 그리기
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);  // 흰색
-	drawFilledCylinder(2.0, 0.2, 20, 10);
+	GLfloat white_material_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, white_material_diffuse);
+	glTranslatef(0.0, -3.0, 0.5);
+	drawFilledCylinder(3.0, 0.5, 20, 10);
 	glPopMatrix();
-	gluLookAt(0, 7, 0, 0, 5, 0, 0, 0, -1);
+	
+	//gluLookAt(0, 7, 0, 0, 3, 0, 0, 0, -1);
 	// 두 번째 원기둥 그리기
 	glPushMatrix();
-	glTranslatef(0.0, 0.0, 0.2);
-	
-	glColor3f(1.0, 1.0, 1.0);  // 흰색
-	drawFilledCylinder(2.5, 0.4, 20, 10);
+	glColor3f(0.0, 0.0, 1.0);  // 파란색
+	glTranslatef(0.0, -10.0, 0.5);
+	drawFilledCylinder(3.5, 1.0, 20, 10);
 	glPopMatrix();
 
 	glutSwapBuffers();
@@ -200,9 +200,13 @@ void MyDisplay() {
 void drawFilledCylinder(GLfloat radius, GLfloat height, GLint slices, GLint stacks) {
 	GLUquadricObj* quadric = gluNewQuadric();
 	gluQuadricDrawStyle(quadric, GLU_FILL);
+	gluQuadricOrientation(quadric, GLU_OUTSIDE);
+	gluQuadricNormals(quadric, GLU_SMOOTH | GLU_OUTSIDE);
 	gluCylinder(quadric, radius, radius, height, slices, stacks);
+	gluDisk(quadric, 0.0, radius, slices, stacks);  // 상단 원판 추가
 	gluDeleteQuadric(quadric);
 }
+
 
 
 void MyKeyboard(unsigned char key, int x, int y) {
@@ -495,7 +499,7 @@ int main(int argc, char** argv) {
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0, 1.0, 0.1, 100.0);
+	gluPerspective(60.0, 1.0, 0.5, 50.0);
 	glutDisplayFunc(MyDisplay);
 	glutKeyboardFunc(MyKeyboard);
 	glutMainLoop();
