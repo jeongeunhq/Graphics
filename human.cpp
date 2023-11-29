@@ -1,507 +1,254 @@
-#include <gl/glut.h>
-#include <gl/gl.h>
+#include <windows.h>
+#include <gl/GL.H>
 #include <gl/glu.h>
-static int Dance = 0, a = 20, b = 20, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0;
-void Draw_Body();
-void Draw_Neck();
-void Draw_Head();
-void Draw_L_Ball();
-void Draw_L_UpperArm();
-void Draw_L_LowerArm();
-void Draw_L_Hand();
-void Draw_R_Ball();
-void Draw_R_UpperArm();
-void Draw_R_LowerArm();
-void Draw_R_Hand();
-void Draw_L_U_Ball();
-void Draw_L_UpperLeg();
-void Draw_L_LowerLeg();
-void Draw_L_Foot();
-void Draw_R_U_Ball();
-void Draw_R_UpperLeg();
-void Draw_R_LowerLeg();
-void Draw_R_Foot();
-void drawFilledCylinder(GLfloat radius, GLfloat height, GLint slices, GLint stacks);
-//a= 왼팔, b=오른팔 c=왼 팔목 d=오른 팔목 e=왼 허벅지 f= 오른 허벅지 g=왼 발목 h=오른 발목
+#include <gl/glut.h>
+#include <math.h>
+#include <cmath>
 
-void SetupLighting() {
+#define CUBE_SIDE 10.0f			//소스 큐브 크기.(크기=한변의 길이)
+#define RB_AXIS_X 0.0f		//로봇의 중심 좌표 x.
+#define RB_AXIS_Y 0.0f		//로봇의 중심 좌표 y.
+#define RB_BODY_SIDE 120.0f		//로봇 몸통 크기.
+#define RB_HEAD_SIDE 70.0f		//로봇 머리 크기.
+#define RB_JOINT_GAP 20.0f		//로봇 관절 틈 크기.
+#define RB_LEG_LENGTH 120.0f	//로봇 다리 길이.
+#define RB_ARM_LENGTH 140.0f	//로봇 팔 길이.
+#define VIEW_SIZE 700.0f	
+
+static double time = 0;		//time 변수.
+GLfloat center_Y = 0.0f;		//화면 중심 y축 angle변수.
+GLfloat left_arm_X = 0.0f;	//왼 팔 X축 angle.
+GLfloat right_arm_X = 0.0f;	//오른 팔 X축 angle.
+GLfloat left_up_leg_X = 0.0f;	//왼 다리 관절 X축.
+GLfloat right_up_leg_X = 0.0f;//오른 다리 관절 X축.
+GLfloat left_down_leg_X = 0.0f;//왼 무릎 관절.
+GLfloat right_down_leg_X = 0.0f;//오른 무릎 관절.
+GLfloat body_Y = 0.0f;//몸중심 축.
+GLfloat head_Y = 0.0f;//머리중심 축.
+
+
+void glInit(void) {	// GL초기화 함수.
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_SMOOTH);
 	glEnable(GL_LIGHTING);
+
+	GLfloat ambientLight[] = { 0.3f,0.3f,0.3f,1.0f };
+	GLfloat diffuseLight[] = { 0.7f,0.7f,0.7f,1.0f };
+	GLfloat specular[] = { 1.0f,1.0f,1.0f,1.0f };
+	GLfloat specref[] = { 1.0f,1.0f,1.0f,1.0f };
+	GLfloat position[] = { 400.0f,300.0f,700.0f,1.0f };
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
 	glEnable(GL_LIGHT0);
 
-	GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-	GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	glEnable(GL_COLOR_MATERIAL);
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specref);
+	glMateriali(GL_FRONT, GL_SHININESS, 128);
 
-	// 파란색 재질 설정
-	GLfloat blue_material_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, blue_material_diffuse);
-}
-
-void MyDisplay() {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_MODELVIEW);
-	
-	glLoadIdentity();
-	
-	gluLookAt(0.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0);
-	glRotatef((GLfloat)Dance, 0.0, 1.0, 0.0);
-	
-	glTranslatef(0.0, 0.31, 0.0);
-	SetupLighting();
-	Draw_Body();
-	glPushMatrix();
-	glTranslatef(0.0, 0.02, 0.0);
-	glTranslatef(0.0, 0.3, 0.0);
-	Draw_Neck();
-	glPushMatrix();
-	glTranslatef(0.0, -0.19, 0.0);
-	glTranslatef(0.0, -0.05, 0.0);
-	Draw_Head();
-	glPopMatrix(); //목
-	glPopMatrix(); //몸통
-	glPushMatrix();
-	glTranslatef(-0.1, 0.0, 0.0);
-	glTranslatef(-0.20, 0.21, 0.0);
-	Draw_L_Ball();  //왼쪽 팔 부분 시작
-	glPushMatrix();
-	glRotatef(a, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, 0.22, 0.0);
-	glTranslatef(0.0, 0.03, 0.0);
-	Draw_L_UpperArm(); //왼쪽 어깨쪽
-	glPushMatrix();
-	glTranslatef(0.0, 0.15, 0.0);
-	Draw_L_Ball();  //왼쪽 팔 부분 시작
-	glPushMatrix();
-	glRotatef(c, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, -0.25, 0.0);
-	glTranslatef(0.0, -0.05, 0.0);
-	Draw_L_LowerArm();   //왼쪽 팔목
-	glPushMatrix();
-	glTranslatef(0.0, -0.05, 0.0);
-	glTranslatef(0.0, -0.2, 0.0);
-	Draw_L_Hand();   //왼쪽 손
-	glPopMatrix(); //왼쪽 팔목
-	glPopMatrix();  //왼쪽 팔목관절
-	glPopMatrix();  //왼쪽 어깨
-	glPopMatrix();  //왼쪽 어깨관절
-	glPopMatrix(); //몸통
-	glPushMatrix();
-	glTranslatef(0.1, 0.0, 0.0);
-	glTranslatef(0.20, 0.21, 0.0);
-	Draw_R_Ball();  //오른쪽 팔 부분 시작
-	glPushMatrix();
-	glRotatef(-b, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, 0.22, 0.0);
-	glTranslatef(0.0, 0.03, 0.0);
-	Draw_R_UpperArm(); //오른쪽 어깨쪽
-	glPushMatrix();
-	glTranslatef(0.0, 0.15, 0.0);
-	Draw_R_Ball();  //오른쪽 팔 부분 시작
-	glPushMatrix();
-	glRotatef(d, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, -0.25, 0.0);
-	glTranslatef(0.0, -0.05, 0.0);
-	Draw_R_LowerArm();   //오른쪽 팔목
-	glPushMatrix();
-	glTranslatef(0.0, -0.05, 0.0);
-	glTranslatef(0.0, -0.2, 0.0);
-	Draw_R_Hand();   //오른쪽 손
-	glPopMatrix(); //오른쪽 팔목
-	glPopMatrix();  //오른쪽 팔목관절
-	glPopMatrix();  //오른쪽 어깨
-	glPopMatrix();  //오른쪽 어깨관절
-	glPopMatrix(); //몸통
-	glPushMatrix();
-	glTranslatef(-0.1, -0.0, 0.0);
-	glTranslatef(-0.21, -0.2, 0.0);
-	Draw_L_U_Ball();  //왼쪽 다리 시작 관절
-	glPushMatrix();
-	glRotatef(e, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, 0.5, 0.0);
-	glTranslatef(0.0, 0.03, 0.0);
-	Draw_L_UpperLeg();  //왼쪽 허벅지
-	glPushMatrix();
-	glTranslatef(0.0, 0.02, 0.0);
-	glTranslatef(0.0, 0.18, 0.0);
-	Draw_L_U_Ball();  //왼쪽 다리 시작 관절
-	glPushMatrix();
-	glRotatef(g, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, -0.22, 0.0);
-	glTranslatef(0.0, -0.02, 0.0);
-	Draw_L_LowerLeg();  //왼쪽 다리
-	glPushMatrix();
-	glTranslatef(0.0, -0.02, 0.0);
-	glTranslatef(0.0, -0.13, 0.0);
-	Draw_L_Foot();  //왼쪽 발
-	glPopMatrix(); //왼쪽 다리
-	glPopMatrix();  //다리 관절
-	glPopMatrix();  //왼쪽 허벅지
-	glPopMatrix(); //왼쪽 다리시작관절
-	glPopMatrix(); //몸통
-	glTranslatef(0.1, -0.0, 0.0);
-	glTranslatef(0.21, -0.2, 0.0);
-	Draw_R_U_Ball();  //오른쪽 다리 시작 관절
-	glPushMatrix();
-	glRotatef(f, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, 0.5, 0.0);
-	glTranslatef(0.0, 0.03, 0.0);
-	Draw_R_UpperLeg();  //오른쪽 허벅지
-	glPushMatrix();
-	glTranslatef(0.0, 0.02, 0.0);
-	glTranslatef(0.0, 0.18, 0.0);
-	Draw_R_U_Ball();  //오른쪽 다리 시작 관절
-	glPushMatrix();
-	glRotatef(h, 0.0, 0.0, 1.0);
-	glTranslatef(0.0, -0.22, 0.0);
-	glTranslatef(0.0, -0.02, 0.0);
-	Draw_R_LowerLeg();  //오른쪽 다리
-	glPushMatrix();
-	glTranslatef(0.0, -0.02, 0.0);
-	glTranslatef(0.0, -0.13, 0.0);
-	Draw_R_Foot();  //오른쪽 발
-	glPopMatrix(); //오른쪽 다리
-	glPopMatrix();  //오른쪽 다리 관절
-	glPopMatrix();  //오른쪽 허벅지
-	glPopMatrix(); //오른쪽 다리 시작 관절
-	glPopMatrix(); //몸통
+	glClearColor(1.0, 1.0, 1.0, 0.0); // 배경 흰색.
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, 4.0 / 3.0, 1.0, 15.0);
+	glOrtho(-VIEW_SIZE, VIEW_SIZE, -VIEW_SIZE, VIEW_SIZE, -VIEW_SIZE, VIEW_SIZE);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0, 6, 0, 0, 3, 0, 0, 0, -2);
-	
-	// 첫 번째 원기둥 그리기
-	glPushMatrix();
-	glColor3f(1.0, 1.0, 1.0);  // 흰색
-	GLfloat white_material_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, white_material_diffuse);
-	glTranslatef(0.0, -3.0, 0.5);
-	drawFilledCylinder(3.0, 0.5, 20, 10);
-	glPopMatrix();
-	
-	//gluLookAt(0, 7, 0, 0, 3, 0, 0, 0, -1);
-	// 두 번째 원기둥 그리기
-	glPushMatrix();
-	glColor3f(0.0, 0.0, 1.0);  // 파란색
-	glTranslatef(0.0, -10.0, 0.5);
-	drawFilledCylinder(3.5, 1.0, 20, 10);
-	glPopMatrix();
-
-	glutSwapBuffers();
-}
-
-void drawFilledCylinder(GLfloat radius, GLfloat height, GLint slices, GLint stacks) {
-	GLUquadricObj* quadric = gluNewQuadric();
-	gluQuadricDrawStyle(quadric, GLU_FILL);
-	gluQuadricOrientation(quadric, GLU_OUTSIDE);
-	gluQuadricNormals(quadric, GLU_SMOOTH | GLU_OUTSIDE);
-	gluCylinder(quadric, radius, radius, height, slices, stacks);
-	gluDisk(quadric, 0.0, radius, slices, stacks);  // 상단 원판 추가
-	gluDeleteQuadric(quadric);
 }
 
 
+void drawArm() { //팔그리기.
 
-void MyKeyboard(unsigned char key, int x, int y) {
-	switch (key) {
-		//a= 왼팔, b=오른팔 c=왼 팔목 d=오른 팔목 e=왼 허벅지 f= 오른 허벅지 g=왼 발목 h=오른 발목
-	case 'a':
-		a = 90;
-		b = 90;
-		c = -90;
-		d = -90;
-		Dance = 0;
-		glutPostRedisplay();
-		break;
-	case 'b':
-		a = 90;
-		b = 90;
-		c = 90;
-		d = 90;
-		Dance = 0;
-		glutPostRedisplay();
-		break;
-	case 'c':
-		e = 40;
-		f = -40;
-		g = 80;
-		h = -80;
-		Dance = 0;
-		glutPostRedisplay();
-		break;
-		// 'd' 키를 누르면 Dance 변수를 10씩 증가시키고 360으로 나눈 나머지를 대입합니다.
-		// 그리고 화면을 다시 그리도록 합니다.
-	case 'd':
-		Dance = (Dance + 10) % 360;
-		glutPostRedisplay();
-		break;
-		// 'g' 키를 누르면 왼쪽 어깨와 왼쪽 팔을 특정 각도로 설정하고 화면을 다시 그리도록 합니다.
-	case 'g':
-		a = 90;
-		b = 90;
-		glutPostRedisplay();
-		break;
-	case 'e':
-		a = 180;
-		b = 180;
-		glutPostRedisplay();
-		break;
+	glTranslatef(RB_BODY_SIDE / 2.0f + RB_JOINT_GAP, RB_BODY_SIDE * 0.9, 0.0f);
+	//drawAxis(50.0f);
+	glRotatef(15, 0, 0, 1);	// 팔 축을 중심으로 한 팔의 현재 움직임.
+	glRotatef(left_arm_X, 1, 0, 0);   //팔 흔들기.
+	glRotatef(-30, 0, 1, 0);
+
+	glScalef(RB_ARM_LENGTH / 4.0 / CUBE_SIDE, RB_ARM_LENGTH / CUBE_SIDE, RB_ARM_LENGTH / 4.0 / CUBE_SIDE);
+	glTranslatef(0.0f, -CUBE_SIDE / 2.0f, 0.0f);
+	glutSolidCube(CUBE_SIDE); // 왼팔 그리기.
+
+	glPopMatrix();
+	glPushMatrix();
+
+	glTranslatef(-(RB_BODY_SIDE / 2.0f + RB_JOINT_GAP), RB_BODY_SIDE * 0.9, 0.0f);
+	//drawAxis(50.0f);
+	glRotatef(-15, 0, 0, 1);  // 팔 축을 중심으로 한 팔의 현재 움직임.
+	glRotatef(right_arm_X, 1, 0, 0);	//팔 흔들기.
+	glRotatef(30, 0, 1, 0);
+
+	glScalef(RB_ARM_LENGTH / 4.0 / CUBE_SIDE, RB_ARM_LENGTH / CUBE_SIDE, RB_ARM_LENGTH / 4.0 / CUBE_SIDE);
+	glTranslatef(0.0f, -CUBE_SIDE / 2.0f, 0.0f);
+	glutSolidCube(CUBE_SIDE); // 오른팔 그리기.
+
+}
+
+void drawLeg() {	//다리 그리기.
+
+	glTranslatef(RB_BODY_SIDE / 4.0f, -RB_JOINT_GAP, 0.0f);  //윗 다리 중심.
+	//drawAxis(50.0f);
+	glRotatef(2, 0, 0, 1);		// 몸통과 다리 각도.
+	glRotatef(left_up_leg_X, 1, 0, 0); //다리 흔들기.
+	glScalef(RB_LEG_LENGTH / 2.5 / CUBE_SIDE, RB_LEG_LENGTH / CUBE_SIDE, RB_LEG_LENGTH / 2.5 / CUBE_SIDE);
+	glTranslatef(0.0f, -CUBE_SIDE / 2.0f, 0.0f);
+	glutSolidCube(CUBE_SIDE);	//왼쪽 다리 무릎까지 그리기.
+
+	glScalef(CUBE_SIDE * 2.5 / RB_LEG_LENGTH, CUBE_SIDE / RB_LEG_LENGTH, CUBE_SIDE * 2.5 / RB_LEG_LENGTH);
+	// 스케일 원상 복구.
+
+	glTranslatef(0.0f, -RB_LEG_LENGTH / 2.0f - RB_JOINT_GAP, 0.0f); // 밑 다리 중심.
+	//drawAxis(50.0f);
+	glRotatef(left_down_leg_X, 1, 0, 0);// 무릎 각도. 무릎 흔들기.
+	glScalef(RB_LEG_LENGTH / 2.5 / CUBE_SIDE, RB_LEG_LENGTH / CUBE_SIDE, RB_LEG_LENGTH / 2.5 / CUBE_SIDE);
+	glTranslatef(0.0f, -CUBE_SIDE / 2.0f, 0.0f);
+	glutSolidCube(CUBE_SIDE);	//왼쪽 다리 끝까지 그리기.
+
+	glPopMatrix();
+	glPushMatrix();
+
+	glTranslatef(-RB_BODY_SIDE / 4.0f, -RB_JOINT_GAP, 0.0f);  //윗 다리 중심.
+	//drawAxis(50.0f);
+	glRotatef(-2, 0, 0, 1);		// 몸통과 다리 각도.
+	glRotatef(right_up_leg_X, 1, 0, 0);//다리 흔들기.
+	glScalef(RB_LEG_LENGTH / 2.5 / CUBE_SIDE, RB_LEG_LENGTH / CUBE_SIDE, RB_LEG_LENGTH / 2.5 / CUBE_SIDE);
+	glTranslatef(0.0f, -CUBE_SIDE / 2.0f, 0.0f);
+	glutSolidCube(CUBE_SIDE);	//오른쪽 다리 무릎까지 그리기.
+
+	glScalef(CUBE_SIDE * 2.5 / RB_LEG_LENGTH, CUBE_SIDE / RB_LEG_LENGTH, CUBE_SIDE * 2.5 / RB_LEG_LENGTH);
+	//스케일 원상 복구.
+	glTranslatef(0.0f, -RB_LEG_LENGTH / 2.0f - RB_JOINT_GAP, 0.0f); // 밑 다리 중심.
+	//drawAxis(50.0f);
+	glRotatef(right_down_leg_X, 1, 0, 0);// 무릎 각도. 무릎 흔들기.
+	glScalef(RB_LEG_LENGTH / 2.5 / CUBE_SIDE, RB_LEG_LENGTH / CUBE_SIDE, RB_LEG_LENGTH / 2.5 / CUBE_SIDE);
+	glTranslatef(0.0f, -CUBE_SIDE / 2.0f, 0.0f);
+	glutSolidCube(CUBE_SIDE);	//왼쪽 다리 끝까지 그리기.
+
+}
+
+void drawBody() { //몸통 그리기.
+
+	glTranslatef(RB_AXIS_X, RB_AXIS_Y, 0.0f); // 로봇 중심.
+	//drawAxis(80.0f);	//로봇 중심 축 그리기.
+	glRotatef(0, 0, 1, 0); //로봇을 돌리는 앵글.
+	glPushMatrix(); //로봇의 각 부위를 그릴때 중심이 되는 매트릭스 푸싱.
+
+	glScalef(RB_BODY_SIDE / CUBE_SIDE, RB_BODY_SIDE / CUBE_SIDE, RB_BODY_SIDE / CUBE_SIDE);
+	glColor3f(1.0, 0.7, 0.8);
+	glTranslatef(0.0f, CUBE_SIDE / 2, 0.0f);
+	glRotatef(body_Y, 0, 1, 0);	//몸통 흔들기.
+	glutSolidCube(CUBE_SIDE);  // 몸통그리기.
+
+}
+
+void drawHead() { //머리 그리기.
+
+	glTranslatef(0.0f, RB_BODY_SIDE + RB_JOINT_GAP + (RB_HEAD_SIDE / 2.0f), 0.0f); // 얼굴 중심.
+	//drawAxis(80.0f);
+	glRotatef(head_Y, 0, 1, 0);//얼굴 움직임.
+	glScalef(RB_HEAD_SIDE / CUBE_SIDE, RB_HEAD_SIDE / CUBE_SIDE, RB_HEAD_SIDE / CUBE_SIDE);
+	glutSolidSphere(8.0, 80, 80); // 얼굴 그리기.
+
+}
+
+void drawBoard() { // 땅그리기.
+
+	glBegin(GL_TRIANGLE_FAN); //오른쪽 뒤 원 그리기.
 
 
-		// 'q' 키를 누르면 각 변수들을 초기값으로 설정하고 Dance 변수도 0으로 초기화한 후 화면을 다시 그리도록 합니다.
-	case 'q':
-		a = 20;
-		b = 20;
-		c = 0;
-		d = 0;
-		e = 0;
-		f = 0;
-		h = 0;
-		g = 0;
-		Dance = 0;
-		glutPostRedisplay();
-		break;
+	glColor3f(0.8f, 0.8f, 0.8f); //밝은 회색
+	glNormal3f(0, 1, 0);
+	glVertex3f(0.0f, -278, 0.0f); //오른쪽 뒤 원 중점.
+	float angle;
+	for (angle = 0.0f; angle < (2.0f * 3.14159); angle += (3.14159 / 360.0f)) {
 
-	default:
-		break;
+		glVertex3f((500 * cos(angle)), -278.0f, (500 * sin(angle)));
 	}
-}
-
-void Draw_Body()
-{
-	// 몸통의 크기를 조절합니다. X축으로 0.2, Y축으로 1.0, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.2, 0.5, 0.3);
-	// 몸통의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-	// 몸통을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.3이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.3, 100, 100);
-}
-
-void Draw_Neck()
-{
-	// 목의 크기를 조절합니다. X축으로 2.0, Y축으로 -0.5, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(2.0, -0.5, 1.0);
-	glColor3f(1.0, 0.87, 0.68);
-	// 목을 와이어프레임 구 형태로 그립니다.
-   // 반지름이 0.04이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.04, 80, 80);
-}
-
-void Draw_L_Ball()
-{
-	// 왼쪽 손목 부분의 크기를 조절합니다. X축으로 2.0, Y축으로 -0.5, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(2.0, -0.5, 1.0);
-	// 왼쪽 손목 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-	// 왼쪽 손목 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.04이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.04, 80, 80);
-}
-
-
-void Draw_Head() {
-	glColor3f(1.0, 0.87, 0.68); // 머리의 기본 색상 설정
-	glutSolidSphere(0.25, 90, 90); // 머리 모양 및 크기 설정
+	glEnd();
 
 }
 
+void robot_Display() {  // 디스플레이 콜백함수.
 
-void Draw_L_UpperArm()
-{
-	// 왼쪽 상단 팔 부분의 크기를 조절합니다. X축으로 0.3, Y축으로 1.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.3, 1.5, 0.3);
-	// 왼쪽 상단 팔 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-	// 왼쪽 상단 팔 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.15이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.15, 80, 80);
-}
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-void Draw_L_LowerArm()
-{
-	// 왼쪽 하단 팔 부분(팔목)의 크기를 조절합니다. X축으로 0.2, Y축으로 1.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.2, 1.5, 0.3);
-	// 왼쪽 하단 팔 부분(팔목)의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-	// 왼쪽 하단 팔 부분(팔목)을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.2이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.2, 80, 80);
-}
-
-void Draw_L_Hand()
-{
-	// 왼쪽 손의 크기를 조절합니다. X축으로 1.0, Y축으로 -0.5, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(4.0, -0.5, 4.0);
-	// 왼쪽 손의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(1.0, 0.87, 0.68);
-	// 왼쪽 손을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.1이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.1, 80, 80);
-}
-
-void Draw_R_Ball()
-{
-	// 오른쪽 손목 부분의 크기를 조절합니다. X축으로 2.0, Y축으로 -0.5, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(2.0, -0.5, 1.0);
-	glColor3f(0.0, 0.0, 1.0);
-	// 오른쪽 손목 부분을 와이어프레임 구 형태로 그립니다.
-// 반지름이 0.04이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.04, 80, 80);
-}
-
-void Draw_R_UpperArm()
-{
-	// 오른쪽 상단 팔 부분의 크기를 조절합니다. X축으로 0.3, Y축으로 1.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.3, 1.5, 0.3);
-	glColor3f(0.0, 0.0, 1.0);
-	// 오른쪽 상단 팔 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.15이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.15, 80, 80);
-}
-
-void Draw_R_LowerArm()
-{
-	// 오른쪽 하단 팔 부분(팔목)의 크기를 조절합니다. X축으로 0.2, Y축으로 1.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.2, 1.5, 0.3);
-	glColor3f(0.0, 0.0, 1.0);
-	// 오른쪽 하단 팔 부분(팔목)을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.2이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.2, 80, 80);
-}
-
-void Draw_R_Hand() {
-	// 오른쪽 손의 크기를 조절합니다. X축으로 1.0, Y축으로 -0.5, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(4.0, -0.5, 4.0);
-
-	// 오른쪽 손의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(1.0, 0.87, 0.68);
-
-	// 오른쪽 손을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.1이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.1, 80, 80);
-}
-
-void Draw_L_U_Ball() {
-	// 왼쪽 상단 다리의 시작 부분의 크기를 조절합니다. X축으로 2.0, Y축으로 -0.5, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(2.0, -0.5, 1.0);
-
-	// 왼쪽 상단 다리의 시작 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-
-	// 왼쪽 상단 다리의 시작 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.04이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.04, 80, 80);
-}
-
-void Draw_L_UpperLeg() {
-	// 왼쪽 허벅지 부분의 크기를 조절합니다. X축으로 0.25, Y축으로 2.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.25, 2.0, 0.3);
-
-	// 왼쪽 허벅지 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-
-	// 왼쪽 허벅지 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.2이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.2, 80, 80);
-}
-
-void Draw_L_LowerLeg() {
-	// 왼쪽 아래쪽 다리 부분의 크기를 조절합니다. X축으로 0.5, Y축으로 1.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.5, 1.5, 0.3);
-
-	// 왼쪽 아래쪽 다리 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-
-	// 왼쪽 아래쪽 다리 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.15이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.15, 80, 80);
-}
-
-void Draw_L_Foot() {
-	// 왼쪽 발 부분의 크기를 조절합니다. X축으로 3.0, Y축으로 0.1, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(3.0, 0.4, 1.0);
-
-	// 왼쪽 발 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(1.0, 0.87, 0.68);
-
-	// 왼쪽 발 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.1이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.1, 80, 80);
-}
-
-
-void Draw_R_U_Ball() {
-	// 오른쪽 다리의 시작 부분 관절 크기를 조절합니다. X축으로 2.0, Y축으로 -0.5, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(2.0, -0.5, 1.0);
-
-	// 오른쪽 다리의 시작 부분 관절의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-
-	// 오른쪽 다리의 시작 부분 관절을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.04이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.04, 80, 80);
-}
-
-
-void Draw_R_UpperLeg() {
-	// 오른쪽 허벅지 부분의 크기를 조절합니다. X축으로 0.25, Y축으로 2.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.25, 2.0, 0.3);
-
-	// 오른쪽 허벅지 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-
-	// 오른쪽 허벅지 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.2이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.2, 80, 80);
-}
-
-
-void Draw_R_LowerLeg() {
-	// 오른쪽 종아리 부분의 크기를 조절합니다. X축으로 0.5, Y축으로 1.5, Z축으로 0.3의 비율로 확대합니다.
-	glScalef(0.5, 1.5, 0.3);
-
-	// 오른쪽 종아리 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(0.0, 0.0, 1.0);
-
-	// 오른쪽 종아리 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.15이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.15, 80, 80);
-}
-
-
-void Draw_R_Foot() {
-	// 오른쪽 발 부분의 크기를 조절합니다. X축으로 3.0, Y축으로 0.1, Z축으로 1.0의 비율로 확대합니다.
-	glScalef(3.0, 0.4, 1.0);
-
-	// 오른쪽 발 부분의 색상을 설정합니다. 파란색으로 설정합니다.
-	glColor3f(1.0, 0.87, 0.68);
-
-	// 오른쪽 발 부분을 와이어프레임 구 형태로 그립니다.
-	// 반지름이 0.1이며, 가로 및 세로에 20개의 슬라이스 및 스택을 가진 구를 그립니다.
-	glutSolidSphere(0.1, 80, 80);
-}
-
-
-int main(int argc, char** argv) {
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(1280, 980);
-	glutInitWindowPosition(0, 0);
-	glutCreateWindow("human");
-	glClearColor(0.5, 0.5, 0.5, 1.0);
-	glMatrixMode(GL_PROJECTION);
+	glMatrixMode(GL_MODELVIEW); // 모델뷰 매트릭스 초기화.
 	glLoadIdentity();
-	gluPerspective(60.0, 1.0, 0.5, 50.0);
-	glutDisplayFunc(MyDisplay);
-	glutKeyboardFunc(MyKeyboard);
+
+	gluLookAt(50, 40, 80, 0, 0, 0, 0, 1, 0); // 카메라 셋팅.
+	drawBoard();
+
+	glRotatef(center_Y, 0, 1, 0);
+	glPushMatrix();
+
+
+
+	drawBody(); // 몸통.
+	glPopMatrix();
+	glPushMatrix();
+
+	drawHead();	// 머리.
+	glPopMatrix();
+	glPushMatrix();
+
+	drawLeg();	// 다리.
+	glPopMatrix();
+	glPushMatrix();
+
+	drawArm();  // 팔.
+
+	glPopMatrix();
+	glPopMatrix();
+	glutSwapBuffers(); //스왑 버퍼.
+
+}
+
+void timerFunction(int value) { //애니매이션 처리를 위한 timefunc콜백 함수.
+
+	time = time + 0.1047;//시간 증가변수.
+
+	static float step = 10;
+
+	if (step <= 21) { //다리가 발로 땅을 찰때는 로봇이 앞으로 빠르게 전진.
+		center_Y -= 0.65;
+		step++;
+	}
+	else if (21 < step) { //땅을 차는 다리가 바뀌는 시점은 약간 주춤.
+		center_Y -= 0.04;
+		step++;
+		if (step >= 30) step = 0;
+	}
+
+	head_Y = sin(time) * 5; //머리는 5도 각도로 흔들림.
+	body_Y = sin(time) * 10; //몸통은 10도 각도로 흔들림.
+
+	left_arm_X = sin(time) * 20;//왼팔은 20도 각도로.
+	right_arm_X = -left_arm_X;//오른팔은 왼팔 반대로 20도 각도.
+
+	right_up_leg_X = sin(time) * 20;//오른다리는 왼팔과 같은 각도로.
+	left_up_leg_X = -right_up_leg_X;//왼다리는 오른팔과 같은 각도로.
+
+	right_down_leg_X = abs(right_up_leg_X / 1.2f);//오른무릎은 다리 각도를 1.2로 나눈 절대각도.
+	left_down_leg_X = abs(left_up_leg_X / 1.2f);//왼무릎은 다리 각도를 1.2로 나눈 절대각도.
+
+	glutPostRedisplay();//다시 그리기.
+
+	glutTimerFunc(22, timerFunction, 1); //다음 타이머 설정.
+
+}
+
+void main(int argc, char** argv) {
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); //더블 버퍼 컬러 모드.
+	glutInitWindowSize(1280, 980); 
+	glutInitWindowPosition(0, 0); 
+	glutCreateWindow("히언이와 으나의 가요 톱 파이부"); 
+	//glutTimerFunc(1000, timerFunction, 1);//타이머 설정.
+	glutDisplayFunc(robot_Display);
+	glInit();
 	glutMainLoop();
-	return 0;
 }
