@@ -9,11 +9,11 @@
 #define RB_AXIS_X 0.0f		//로봇의 중심 좌표 x.
 #define RB_AXIS_Y 0.0f		//로봇의 중심 좌표 y.
 #define RB_BODY_SIDE 120.0f		//로봇 몸통 크기.
-#define RB_HEAD_SIDE 70.0f		//로봇 머리 크기.
+#define RB_HEAD_SIDE 35.0f		//로봇 머리 크기.
 #define RB_JOINT_GAP 20.0f		//로봇 관절 틈 크기.
 #define RB_LEG_LENGTH 120.0f	//로봇 다리 길이.
 #define RB_ARM_LENGTH 140.0f	//로봇 팔 길이.
-#define VIEW_SIZE 700.0f	
+#define VIEW_SIZE 600.0f	
 
 static double time = 0;		//time 변수.
 GLfloat center_Y = 0.0f;		//화면 중심 y축 angle변수.
@@ -52,7 +52,7 @@ void glInit(void) {	// GL초기화 함수.
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specref);
 	glMateriali(GL_FRONT, GL_SHININESS, 128);
 
-	glClearColor(1.0, 1.0, 1.0, 0.0); // 배경 흰색.
+	glClearColor(0.0, 0.0, 0.0, 0.0); // 배경 흰색.
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -151,103 +151,110 @@ void drawHead() { //머리 그리기.
 	//drawAxis(80.0f);
 	glRotatef(head_Y, 0, 1, 0);//얼굴 움직임.
 	glScalef(RB_HEAD_SIDE / CUBE_SIDE, RB_HEAD_SIDE / CUBE_SIDE, RB_HEAD_SIDE / CUBE_SIDE);
-	glutSolidSphere(8.0, 80, 80); // 얼굴 그리기.
+	glutSolidSphere(RB_HEAD_SIDE / 2.0, 50, 50);  // 얼굴 그리기.
 
 }
 
-void drawBoard() { // 땅그리기.
-
-	glBegin(GL_TRIANGLE_FAN); //오른쪽 뒤 원 그리기.
-
-
-	glColor3f(0.8f, 0.8f, 0.8f); //밝은 회색
-	glNormal3f(0, 1, 0);
-	glVertex3f(0.0f, -278, 0.0f); //오른쪽 뒤 원 중점.
-	float angle;
-	for (angle = 0.0f; angle < (2.0f * 3.14159); angle += (3.14159 / 360.0f)) {
-
-		glVertex3f((500 * cos(angle)), -278.0f, (500 * sin(angle)));
-	}
-	glEnd();
-
-}
-
-void robot_Display() {  // 디스플레이 콜백함수.
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_MODELVIEW); // 모델뷰 매트릭스 초기화.
-	glLoadIdentity();
-
-	gluLookAt(50, 40, 80, 0, 0, 0, 0, 1, 0); // 카메라 셋팅.
-	drawBoard();
-
-	glRotatef(center_Y, 0, 1, 0);
+void drawBoard() {
 	glPushMatrix();
 
+	glColor3f(0.8f, 0.8f, 0.8f); // Light gray color
 
+	// Define the vertices of the rectangle with increased vertical length
+	glBegin(GL_QUADS);
+	glVertex3f(-1200.0f, -400.0f, -250.0f); // Bottom-left
+	glVertex3f(1200.0f, -400.0f, -250.0f);  // Bottom-right
+	glVertex3f(1200.0f, -400.0f, 250.0f);   // Top-right
+	glVertex3f(-1200.0f, -400.0f, 250.0f);  // Top-left
+	glEnd();
+
+	glPopMatrix();
+}
+
+void robot_Display() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	gluLookAt(0, 100, 200, 0, 0, 0, 0, 1, 0);  
+
+	drawBoard();
+
+	glLoadIdentity();
+	gluLookAt(0, 100, 300, 0, 0, 0, 0, 1, 0);  
+	glRotatef(center_Y, 0, 1, 0);
+
+	glPushMatrix();
+
+	
+	glTranslatef(0.0f, -50.0f, 0.0f);
 
 	drawBody(); // 몸통.
 	glPopMatrix();
 	glPushMatrix();
 
-	drawHead();	// 머리.
+	drawHead();  // 머리.
 	glPopMatrix();
 	glPushMatrix();
 
-	drawLeg();	// 다리.
+	drawLeg();  // 다리.
 	glPopMatrix();
 	glPushMatrix();
 
 	drawArm();  // 팔.
 
 	glPopMatrix();
-	glPopMatrix();
-	glutSwapBuffers(); //스왑 버퍼.
-
+	glutSwapBuffers();  // 스왑 버퍼.
 }
 
-void timerFunction(int value) { //애니매이션 처리를 위한 timefunc콜백 함수.
 
-	time = time + 0.1047;//시간 증가변수.
+void timerFunction(int value) {
+	int elapsedMilliseconds = glutGet(GLUT_ELAPSED_TIME);
+	int elapsedSeconds = (elapsedMilliseconds / 1000) % 60;  
 
-	static float step = 10;
+	time = elapsedMilliseconds / 1000.0; 
 
-	if (step <= 21) { //다리가 발로 땅을 찰때는 로봇이 앞으로 빠르게 전진.
-		center_Y -= 0.65;
-		step++;
+	
+	if (elapsedSeconds < 10) {
+		// First 10 seconds: Wave arms
+		left_arm_X = 60 * sin(6 * time);
+		right_arm_X = -left_arm_X;
 	}
-	else if (21 < step) { //땅을 차는 다리가 바뀌는 시점은 약간 주춤.
-		center_Y -= 0.04;
-		step++;
-		if (step >= 30) step = 0;
+	else if (elapsedSeconds < 20) {
+		// Next 10 seconds: Move legs
+		right_up_leg_X = 60 * sin(4 * time);
+		left_up_leg_X = -right_up_leg_X;
+		right_down_leg_X = 40 * sin(4 * time);
+		left_down_leg_X = -40 * sin(4 * time);
+
+	
+		left_arm_X = 0;
+		right_arm_X = 0;
+	}
+	else {
+		
+		left_arm_X = 0;
+		right_arm_X = 0;
+		right_up_leg_X = 0;
+		left_up_leg_X = 0;
+		right_down_leg_X = 0;
+		left_down_leg_X = 0;
 	}
 
-	head_Y = sin(time) * 5; //머리는 5도 각도로 흔들림.
-	body_Y = sin(time) * 10; //몸통은 10도 각도로 흔들림.
+	glutPostRedisplay(); 
 
-	left_arm_X = sin(time) * 20;//왼팔은 20도 각도로.
-	right_arm_X = -left_arm_X;//오른팔은 왼팔 반대로 20도 각도.
-
-	right_up_leg_X = sin(time) * 20;//오른다리는 왼팔과 같은 각도로.
-	left_up_leg_X = -right_up_leg_X;//왼다리는 오른팔과 같은 각도로.
-
-	right_down_leg_X = abs(right_up_leg_X / 1.2f);//오른무릎은 다리 각도를 1.2로 나눈 절대각도.
-	left_down_leg_X = abs(left_up_leg_X / 1.2f);//왼무릎은 다리 각도를 1.2로 나눈 절대각도.
-
-	glutPostRedisplay();//다시 그리기.
-
-	glutTimerFunc(22, timerFunction, 1); //다음 타이머 설정.
-
+	glutTimerFunc(500, timerFunction, 1);
 }
+
 
 void main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); //더블 버퍼 컬러 모드.
-	glutInitWindowSize(1280, 980); 
-	glutInitWindowPosition(0, 0); 
-	glutCreateWindow("히언이와 으나의 가요 톱 파이부"); 
-	//glutTimerFunc(1000, timerFunction, 1);//타이머 설정.
+	glutInitWindowSize(1200, 980);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow("히언이와 으나의 가요 톱 파이부");
+	glutTimerFunc(1000, timerFunction, 1);//타이머 설정.
 	glutDisplayFunc(robot_Display);
 	glInit();
 	glutMainLoop();
