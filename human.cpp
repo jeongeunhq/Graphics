@@ -4,6 +4,8 @@
 #include <gl/glut.h>
 #include <math.h>
 #include <cmath>
+#include <mmsystem.h>;
+#pragma comment(lib, "winmm.lib")
 
 #define CUBE_SIDE 10.0f			//소스 큐브 크기.(크기=한변의 길이)
 #define RB_AXIS_X 0.0f		//로봇의 중심 좌표 x.
@@ -14,21 +16,23 @@
 #define RB_LEG_LENGTH 120.0f	//로봇 다리 길이.
 #define RB_ARM_LENGTH 140.0f	//로봇 팔 길이.
 #define VIEW_SIZE 600.0f	
+#define SOUND_FILE_NAME  "../가요톱빠이부.wav"
 
 static double time = 0;		//time 변수.
 GLfloat center_Y = 0.0f;		//화면 중심 y축 angle변수.
 GLfloat left_arm_X = 0.0f;	//왼 팔 X축 angle.
 GLfloat right_arm_X = 0.0f;	//오른 팔 X축 angle.
+GLfloat left_arm_Y = 0.0f;	//왼 팔 X축 angle.
+GLfloat right_arm_Y = 0.0f;
 GLfloat left_up_leg_X = 0.0f;	//왼 다리 관절 X축.
 GLfloat right_up_leg_X = 0.0f;//오른 다리 관절 X축.
 GLfloat left_down_leg_X = 0.0f;//왼 무릎 관절.
 GLfloat right_down_leg_X = 0.0f;//오른 무릎 관절.
 GLfloat body_Y = 0.0f;//몸중심 축.
 GLfloat head_Y = 0.0f;//머리중심 축.
-
+GLfloat head_X = 0.0f;
 
 void glInit(void) {	// GL초기화 함수.
-
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_SMOOTH);
@@ -39,6 +43,7 @@ void glInit(void) {	// GL초기화 함수.
 	GLfloat specular[] = { 1.0f,1.0f,1.0f,1.0f };
 	GLfloat specref[] = { 1.0f,1.0f,1.0f,1.0f };
 	GLfloat position[] = { 400.0f,300.0f,700.0f,1.0f };
+
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
@@ -57,7 +62,7 @@ void glInit(void) {	// GL초기화 함수.
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(-VIEW_SIZE, VIEW_SIZE, -VIEW_SIZE, VIEW_SIZE, -VIEW_SIZE, VIEW_SIZE);
-
+	
 }
 
 
@@ -66,7 +71,7 @@ void drawArm() { //팔그리기.
 	glTranslatef(RB_BODY_SIDE / 2.0f + RB_JOINT_GAP, RB_BODY_SIDE * 0.9, 0.0f);
 	//drawAxis(50.0f);
 	glRotatef(15, 0, 0, 1);	// 팔 축을 중심으로 한 팔의 현재 움직임.
-	glRotatef(left_arm_X, 1, 0, 0);   //팔 흔들기.
+	glRotatef(left_arm_X, 1, left_arm_Y, 0);   //팔 흔들기.
 	glRotatef(-30, 0, 1, 0);
 
 	glScalef(RB_ARM_LENGTH / 4.0 / CUBE_SIDE, RB_ARM_LENGTH / CUBE_SIDE, RB_ARM_LENGTH / 4.0 / CUBE_SIDE);
@@ -79,7 +84,7 @@ void drawArm() { //팔그리기.
 	glTranslatef(-(RB_BODY_SIDE / 2.0f + RB_JOINT_GAP), RB_BODY_SIDE * 0.9, 0.0f);
 	//drawAxis(50.0f);
 	glRotatef(-15, 0, 0, 1);  // 팔 축을 중심으로 한 팔의 현재 움직임.
-	glRotatef(right_arm_X, 1, 0, 0);	//팔 흔들기.
+	glRotatef(right_arm_X,1, right_arm_Y, 0);	//팔 흔들기.
 	glRotatef(30, 0, 1, 0);
 
 	glScalef(RB_ARM_LENGTH / 4.0 / CUBE_SIDE, RB_ARM_LENGTH / CUBE_SIDE, RB_ARM_LENGTH / 4.0 / CUBE_SIDE);
@@ -145,20 +150,49 @@ void drawBody() { //몸통 그리기.
 
 }
 
-void drawHead() { //머리 그리기.
+void drawPyramidHead() {
+	glBegin(GL_TRIANGLES);
+	// Bottom face
+	glVertex3f(-RB_HEAD_SIDE / 2.0, -RB_HEAD_SIDE / 2.0, 0.0);
+	glVertex3f(RB_HEAD_SIDE / 2.0, -RB_HEAD_SIDE / 2.0, 0.0);
+	glVertex3f(0.0, RB_HEAD_SIDE / 2.0, 0.0);
 
-	glTranslatef(0.0f, RB_BODY_SIDE + RB_JOINT_GAP + (RB_HEAD_SIDE / 2.0f), 0.0f); // 얼굴 중심.
-	//drawAxis(80.0f);
-	glRotatef(head_Y, 0, 1, 0);//얼굴 움직임.
+	// Front face
+	glVertex3f(-RB_HEAD_SIDE / 2.0, -RB_HEAD_SIDE / 2.0, 0.0);
+	glVertex3f(RB_HEAD_SIDE / 2.0, -RB_HEAD_SIDE / 2.0, 0.0);
+	glVertex3f(0.0, 0.0, RB_HEAD_SIDE);
+
+	// Left face
+	glVertex3f(-RB_HEAD_SIDE / 2.0, -RB_HEAD_SIDE / 2.0, 0.0);
+	glVertex3f(0.0, -RB_HEAD_SIDE / 2.0, RB_HEAD_SIDE);
+	glVertex3f(0.0, RB_HEAD_SIDE / 2.0, 0.0);
+
+	// Right face
+	glVertex3f(RB_HEAD_SIDE / 2.0, -RB_HEAD_SIDE / 2.0, 0.0);
+	glVertex3f(0.0, -RB_HEAD_SIDE / 2.0, RB_HEAD_SIDE);
+	glVertex3f(0.0, RB_HEAD_SIDE / 2.0, 0.0);
+
+	glEnd();
+}
+
+void drawHead() {
+	glTranslatef(0.0f, RB_BODY_SIDE + RB_JOINT_GAP + (RB_HEAD_SIDE / 2.0f), 0.0f); // Head center
+	glRotatef(head_Y, head_X, 1, 0); // Head movement
 	glScalef(RB_HEAD_SIDE / CUBE_SIDE, RB_HEAD_SIDE / CUBE_SIDE, RB_HEAD_SIDE / CUBE_SIDE);
-	glutSolidSphere(RB_HEAD_SIDE / 2.0, 50, 50);  // 얼굴 그리기.
+	glutSolidCone(RB_HEAD_SIDE / 2.0, RB_HEAD_SIDE, 50, 50);  // Cone-shaped head
+}
 
+void drawCone(GLfloat radius, GLfloat height, GLint slices, GLint stacks) {
+	GLUquadric* quadric = gluNewQuadric();
+	gluQuadricDrawStyle(quadric, GLU_FILL);
+	gluCylinder(quadric, radius, 0.0, height, slices, stacks);
+	gluDeleteQuadric(quadric);
 }
 
 void drawBoard() {
 	glPushMatrix();
 
-	glColor3f(0.8f, 0.8f, 0.8f); // Light gray color
+	glColor4f(0.8f, 0.8f, 0.8f, 0.5f); // Light gray 
 
 	// Define the vertices of the rectangle with increased vertical length
 	glBegin(GL_QUADS);
@@ -167,6 +201,41 @@ void drawBoard() {
 	glVertex3f(1200.0f, -400.0f, 250.0f);   // Top-right
 	glVertex3f(-1200.0f, -400.0f, 250.0f);  // Top-left
 	glEnd();
+
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor4f(0.0f, 0.0f, 1.0f, 0.25f); //파란색
+	glTranslatef(0.0f, 300.0f, 0.0f);
+	glRotatef(-135, 1, 0, 0); // 원뿔을 위로 향하도록 회전
+	drawCone(100.0, 500.0, 50, 50);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor4f(1.0f, 0.65f, 0.0f, 0.25f); //노란색
+	glTranslatef(-300.0f, 250.0f, 0.0f);
+	glRotatef(-135, 1, 1, 0); // 원뿔을 위로 향하도록 회전
+	drawCone(100.0, 1000.0, 50, 50);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor4f(1.0f, 0.0f, 0.0f, 0.25f); //빨간색
+	glTranslatef(300.0f, 250.0f, 0.0f);
+	glRotatef(-135, 1, -1, 0); // 원뿔을 위로 향하도록 회전
+	drawCone(100.0, 1000.0, 50, 50);
+	glPopMatrix();
+
+}
+
+void draw3DText(const char* text, GLfloat x, GLfloat y, GLfloat z) {
+	glPushMatrix();
+	glTranslatef(x, y, z);
+	glScalef(1.0f, 1.0f, 1.0f);
+	glColor3f(1.0, 1.0, 1.0);
+
+	for (const char* c = text; *c != '\0'; ++c) {
+		glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, *c);
+	}
 
 	glPopMatrix();
 }
@@ -203,34 +272,132 @@ void robot_Display() {
 	glPushMatrix();
 
 	drawArm();  // 팔.
-
 	glPopMatrix();
+	glPushMatrix();
+
+	draw3DText("Top", -RB_BODY_SIDE / 2.0f - 400.0f, RB_BODY_SIDE * 0.9f, 0.0f);
+	draw3DText("3", RB_BODY_SIDE / 2.0f + 200.0f, RB_BODY_SIDE * 0.9f, 0.0f);
+
+	glPushMatrix();
 	glutSwapBuffers();  // 스왑 버퍼.
 }
 
 
 void timerFunction(int value) {
+
 	int elapsedMilliseconds = glutGet(GLUT_ELAPSED_TIME);
 	int elapsedSeconds = (elapsedMilliseconds / 1000) % 60;  
 
-	time = elapsedMilliseconds / 1000.0; 
-
+	time = elapsedMilliseconds / 2000.0; 
 	
-	if (elapsedSeconds < 10) {
-		// First 10 seconds: Wave arms
-		left_arm_X = 60 * sin(6 * time);
-		right_arm_X = -left_arm_X;
+	if (elapsedSeconds <= 5) {
+		head_X= 10 * sin(12 * time);
+		left_arm_X = 180 * sin(12 * time);
+		right_arm_X = -180 * sin(12 * time);
 	}
-	else if (elapsedSeconds < 20) {
-		// Next 10 seconds: Move legs
-		right_up_leg_X = 60 * sin(4 * time);
-		left_up_leg_X = -right_up_leg_X;
-		right_down_leg_X = 40 * sin(4 * time);
-		left_down_leg_X = -40 * sin(4 * time);
-
-	
-		left_arm_X = 0;
+	else if (elapsedSeconds > 5&&elapsedSeconds <= 10) {
+		
+		right_up_leg_X = 60 * sin(12 * time);
+		//left_up_leg_X = -right_up_leg_X;
+		right_down_leg_X = 40 * sin(12 * time);
+		//left_down_leg_X = -40 * sin(12 * time);
+		body_Y = 10 * sin(12 * time);
+		head_Y= 10 * sin(12 * time);
+        left_arm_X = 180 * sin(12 * time);
 		right_arm_X = 0;
+	}
+	else if (elapsedSeconds > 10&&elapsedSeconds <= 15) {
+		
+		right_up_leg_X = 0;
+		left_up_leg_X = -50 * sin(12 * time);
+		right_down_leg_X = 0;
+		left_down_leg_X = -30 * sin(12 * time);
+		body_Y = 20 * sin(12 * time);
+		head_Y = 20 * sin(12 * time);
+		head_X = 0;
+		left_arm_X = 180 * sin(12 * time);
+		right_arm_X = 180 * sin(12 * time);
+	}
+	else if (elapsedSeconds > 15 && elapsedSeconds <= 20) {
+
+		right_up_leg_X = 0;
+		left_up_leg_X = -50 * sin(12 * time);
+		right_down_leg_X = 0;
+		left_down_leg_X = -30 * sin(12 * time);
+		body_Y = 20 * sin(12 * time);
+		head_Y = 20 * sin(12 * time);
+		head_X = 0;
+		left_arm_X = 180 * sin(12 * time);
+		right_arm_X = 180 * sin(12 * time);
+	}
+	else if (elapsedSeconds > 20 && elapsedSeconds <= 25) {
+
+		right_up_leg_X = 50 * sin(12 * time);
+		left_up_leg_X = -50 * sin(12 * time);
+		right_down_leg_X = 0;
+		left_down_leg_X = -30 * sin(12 * time);
+		body_Y = 0;
+		head_Y = 0;
+		left_arm_X = 180 * sin(12 * time);
+		right_arm_X = 180 * sin(12 * time);
+	}
+	else if (elapsedSeconds > 25 && elapsedSeconds <= 30) {
+
+		right_up_leg_X = 50 * sin(12 * time);
+		left_up_leg_X = -50 * sin(12 * time);
+		right_down_leg_X = 30 * sin(12 * time);
+		left_down_leg_X = -30 * sin(12 * time);
+		body_Y = 0;
+		head_Y = 0;
+		left_arm_X = 70 * sin(6 * time);
+		right_arm_X = -70 * sin(6 * time);
+	}
+	else if (elapsedSeconds > 30 && elapsedSeconds <= 40) {
+
+		right_up_leg_X = 50 * sin(12 * time);
+		left_up_leg_X = 0;
+		right_down_leg_X = 30 * sin(12 * time);
+		left_down_leg_X = 0;
+		body_Y = -20 * sin(12 * time);
+		head_Y = 20 * sin(12 * time);
+		left_arm_Y = 90 * sin(6 * time);
+		right_arm_Y = 90 * sin(6 * time);
+	}
+	else if (elapsedSeconds > 40 && elapsedSeconds <= 45) {
+
+		right_up_leg_X = 0;
+		left_up_leg_X = 0;
+		right_down_leg_X = 0;
+		left_down_leg_X = 0;
+		body_Y = 0;
+		head_X = 20 * sin(12 * time);
+		left_arm_Y = 90 * sin(6 * time);
+		right_arm_Y = 90 * sin(6 * time);
+	}
+	else if (elapsedSeconds > 45 && elapsedSeconds <= 50) {
+
+		right_up_leg_X = 0;
+		left_up_leg_X = 0;
+		right_down_leg_X = 0;
+		left_down_leg_X = 0;
+		body_Y = 0;
+		head_X = 20 * sin(12 * time);
+		left_arm_X = 90 * sin(6 * time);
+		left_arm_Y =0;
+		right_arm_X = 90 * sin(6 * time);
+		right_arm_Y = 0;
+	}
+	else if (elapsedSeconds > 50 && elapsedSeconds <= 55) {
+		right_up_leg_X = 0;
+		left_up_leg_X = 0;
+		right_down_leg_X = 0;
+		left_down_leg_X = 0;
+		body_Y = 30 * sin(12 * time);
+		head_X = 20 * sin(12 * time);
+		left_arm_X = 90 * sin(6 * time);
+		left_arm_Y = 0;
+		right_arm_X = 90 * sin(6 * time);
+		right_arm_Y = 0;
 	}
 	else {
 		
@@ -240,20 +407,24 @@ void timerFunction(int value) {
 		left_up_leg_X = 0;
 		right_down_leg_X = 0;
 		left_down_leg_X = 0;
+		body_Y = 0;
+		head_Y = 0;
 	}
 
 	glutPostRedisplay(); 
 
 	glutTimerFunc(500, timerFunction, 1);
+	
 }
 
 
 void main(int argc, char** argv) {
+	PlaySound(TEXT("가요톱쓰리.wav"), 0, SND_FILENAME | SND_ASYNC);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); //더블 버퍼 컬러 모드.
 	glutInitWindowSize(1200, 980);
 	glutInitWindowPosition(0, 0);
-	glutCreateWindow("히언이와 으나의 가요 톱 파이부");
+	glutCreateWindow("히언이와 으나의 가요 톱 뜨리");
 	glutTimerFunc(1000, timerFunction, 1);//타이머 설정.
 	glutDisplayFunc(robot_Display);
 	glInit();
